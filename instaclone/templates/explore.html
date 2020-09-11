@@ -1,0 +1,98 @@
+{% extends "home.html" %}
+{% block body %}
+<form method="post">
+ {{form.hidden_tag()}}
+  <div class="form-group">
+   <div class="col-6">
+    {% if form.search.errors %}
+     {{form.search(class="form-control form-control-lg is-invalid")}}
+     <div class="invalid-feedback">
+      {% for error in form.search.errors %}
+       <span>{{error}}</span>
+      {% endfor %}
+     </div>
+    {% else %}
+    {{form.search(class="form-control form-control-lg")}}
+    {% endif %}
+   </div>
+  </div>
+  <div class="form-group pl-3">
+   {{form.submit(class="btn btn-outline-info")}}
+  </div>
+</form>
+<br>
+{% if flag %}
+ {% for user in users %}
+  <div class="container">
+   <div class="row">
+    {% if user[6] %}
+     {% set fm=user[6] %}
+    {% else %}
+     {% set fm='default.jpeg'%}
+    {% endif %}
+    <div class="col-2">
+     <img class="rounded-circle border img-fluid" style="height:200px;height:180px;"  src="{{url_for('static',filename='uploads/'+fm)}}">
+    </div>
+    <div class="d-inline-flex p-2">
+     <a href="{{url_for('profile',username=user[1])}}"><h3>{{user[3]}}</h3></a>
+    </div>
+   </div>
+  </div>
+  <hr>
+  <br>
+ {% endfor %}
+{% else %}
+<div class="container">
+ <div id ="scroller" class="mb-3">
+  <template id="post_template">
+   <div class="col-2">
+    <img class="rounded-circle border img-fluid" style="height:200px;height:180px;"  src="" id="img">
+   </div>
+   <div class="d-inline-flex p-2">
+    <a href="" id="url"><h3 id="name"></h3></a>
+   </div>
+  </template>
+ </div>
+ <div class="d-flex justify-content-center mb-3" id="sentinel">
+  <div class="spinner-border" role="status"></div>
+ </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block script %}
+<script>
+var scroller=document.querySelector("#scroller");
+var template=document.querySelector("#post_template");
+var sentinel=document.querySelector("#sentinel");
+var counter=0;
+function loaditems(){
+ fetch('/load?c='+counter).then(response=>
+     response.json()).then(data=>{
+      if(!data.length){ 
+       sentinel.innerHTML="No more users";
+}
+       for(var i=0;i<data.length;i++){
+         let template_clone=template.content.cloneNode(true);
+         if (data[i][6]){
+         var img=data[i][6];}
+         else{var img='default.jpeg';}
+         template_clone.querySelector('#img').src="/static/uploads/"+img;
+         template_clone.querySelector('#url').href="/profile/"+data[i][1];
+         template_clone.querySelector('#name').innerHTML=data[i][3];
+         scroller.appendChild(template_clone);
+         counter+=1;
+        
+}  
+})
+}
+var intersectionObserver=new IntersectionObserver(entries=>{
+     if(entries[0].intersectionRatio<=0){
+       return;
+}
+loaditems();
+});
+intersectionObserver.observe(sentinel);
+</script>
+
+
+{% endblock %}

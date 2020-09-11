@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+
+<link rel="stylesheet" href="/static/bootstrap.min.css"/>
+<link rel="stylesheet" href="/static/bootstrap-theme.css"/>
+<title>INSTA CLONE</title>
+</head>
+
+<body>
+<header>
+  
+<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    
+<a class="navbar-brand" href="#">InstaClone</a>
+  
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      
+<span class="navbar-toggler-icon"></span>
+    
+</button>
+    
+<div class="collapse navbar-collapse" id="navbarCollapse">
+      
+<ul class="navbar-nav mr-auto">
+ 
+<li class="nav-item {{a1}}"><a class="nav-link" href="{{url_for('home')}}">Home</a></li>
+
+<li class="nav-item {{a2}}"><a class="nav-link" href="{{url_for('profile',username=username)}}">Profile</a> </li>
+
+<li class="nav-item"><a class="nav-link"  href="{{url_for('logout')}}">Log out</a></li>
+<li class="nav-item {{a3}}"><a class="nav-link"  href="{{url_for('explore')}}">Explore</a></li>
+<li class="nav-item"><a class="nav-link"  href="{{url_for('friendrequest')}}">
+{{('Friend Request') }}
+<span id="new_request" class="badge text-danger"></span>
+</a></li>
+<li class="nav-item {{a4}}"><a class="nav-link"  href="{{url_for('contact')}}">
+{{('Messages') }}
+<span id="message_count" class="badge text-danger"></span>
+</a></li>
+<li class="nav-item"><a class="nav-link" href="{{url_for('notification')}}">
+{{('Notification')}}
+<span id="new_comment" class="badge text-danger"></span>
+</a></li>
+</ul>
+      
+  
+</div>
+  
+</nav>
+
+
+
+</header>
+
+<br>
+<br>
+<hr>
+{% block body %}
+<div>
+{% with messages=get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category,msg in messages %}
+<div class="alert alert-{{category}}">
+{{msg}}
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}   
+
+</div>
+<main>
+<div class="container p-3">
+ <h3>Hi,{{name}}</h3>
+  <br>
+   <a class="text-primary" id="profile"><h3>Post Picture</h3></a>
+
+    <img id="profileimage" src="" style="width:400px;heigth:500px;">
+    <div id="vid" style="display:none;">
+    <video  width="400" height="500"  controls>
+     <source src="" type="video/mp4"/>
+    </video>
+    </div>
+     <form  method="post" action="" enctype="multipart/form-data">
+      <div class="form-group">
+       <input class="d-none" id="imageupload" type='file' name='file' accept="video/*,image/*" capture/>
+      </div>
+      <div class="form-group">
+       <label for="textarea1">say something</label>
+       <textarea class="form-control" id="textarea1" rows="3" name="ps"></textarea>
+      </div>
+       <button id="submit" type="submit" class="btn btn-primary" style="margin-bottom:30px;">Post</button>
+     </form>
+</div>
+<div class="container p-2">
+{% if posts %}
+ {% for post in posts %}
+  {% set liked=likedchecker(current_userid,post[0]) %}
+   
+    <div class="row align-items-center p-3">
+     {% if post[14] %}
+      {% set fm=post[14] %}
+     {% else %}
+      {% set fm='default.jpeg'%}
+     {% endif %}
+     <div class="col-2">
+      <figure>
+      <img class="img-fluid rounded-circle border" style="width:90px;height:90px;" src="{{url_for('static',filename='uploads/'+fm)}}">
+      </figure>
+     </div>
+     <div class="d-inline-flex px-2">
+      <a href="{{url_for('profile',username=post[9])}}"><span><p>{{post[11]}}</p></span></a>
+     </div>
+     <div class="col-2">
+      <p>posted {{time(post[3])}}</p>
+     </div>
+    </div>
+    <div class="card">
+    <div class="row card-body">
+     <div class="col-8 px-5">
+      {% if post[5] %}
+       {% if isimage(post[5]) %}
+        <img class="border img-fluid"  style="width:550px;height:500px;" src="{{url_for('static',filename='uploads/'+post[5])}}">
+       {% else %}
+        <video  width="550" height="500"  controls>
+         <source src="{{url_for('static',filename='uploads/'+post[5])}}" type="video/mp4"/>
+        </video>
+        
+       {% endif %}
+      {% endif %}
+      <br>
+      {% if post[1] %}
+       {% autoescape false %}
+       <p>{{post[1]|replace("\n","<br/>")}}</p>
+       {% endautoescape %}
+      {% endif %}
+     </div>
+    </div>
+    </div>
+    <div class="row">
+     <div class="col-1 p-1">
+      {% if post[9]==username %}
+       <a href="{{url_for('delete',postid=post[0])}}"><span><p>delete</p></span></a>
+      {% endif %}
+     </div>
+     <div class="col-1">
+      {% if liked %}
+       <button  class="like{{post[0]}} btn btn-link"  onclick="ajax_unlike('{{post[0]}}')">Unlike</button>
+      {% else %}
+       <button class="like{{post[0]}} btn btn-link" onclick="ajax_like('{{post[0]}}')">Like</button>
+      {% endif %}
+     </div>
+     <div class="col-1 p-2">
+      <a href="{{url_for('comment',post_id=post[0])}}">comment</a>
+     </div>
+     <div class="col-2 p-2">
+      {% if post[6] is not none %}
+       <p>Likes:<span id="likes{{post[0]}}">{{post[6]}}</span></p>
+      {% else %}
+      <p>Likes:<span id="likes{{post[0]}}">0</span></p>
+      {% endif %}
+     </div>
+    </div>
+   <hr>
+ {% endfor %}
+{% endif %}
+</div>
+</main>
+{% endblock %}
+<script type="text/javascript" src="/static/jquery.min.js"></script>
+<script type="text/javascript" src="/static/bootstrap.bundle.js"></script>
+<script type="text/javascript" src="/static/bootstrap.bundle.min.js"></script>
+
+<script type="text/javascript" src="/static/bootstrap.min.js"></script>
+{% block script %}
+<script>
+$(window).scroll(function() {
+  sessionStorage.scrollTop = $(this).scrollTop();
+});
+
+$(document).ready(function() {
+  if (sessionStorage.scrollTop != "undefined") {
+    $(window).scrollTop(sessionStorage.scrollTop);
+  }
+});
+$("#profile").click(function(e)
+{ 
+    $("#imageupload").click();
+    
+}
+);
+function preview(uploader){
+   var filepath=uploader.value;
+   var image=/(\.jpg|\.jpeg|\.png|\.gif)$/i;
+   var video=/(\.mpg|\.mpeg|\.mp4|\.mov)$/i;
+  
+   if (uploader.files && uploader.files[0]){
+if (image.exec(filepath)){
+         
+         $('#vid').hide();
+        $('#profileimage').attr('src',window.URL.createObjectURL(uploader.files[0]));
+  
+        $('#profileimage').show();
+                
+}
+if (video.exec(filepath)){
+       $('#profileimage').hide();
+       $("#vid video source").attr('src',window.URL.createObjectURL(uploader.files[0]));
+       $("#vid video")[0].load();
+       $('#vid').show();
+}
+       
+      
+}
+
+}
+$('#imageupload').change(function(){preview(this);});
+
+$(document).ready(function(){
+setInterval(function(){
+$.ajax({url:"{{url_for('last_read')}}",
+success:function(data){
+               var n=data.result;
+              $('#message_count').text(n);
+              $('#message_count').css('visibility',n?'visible':'hidden');
+},
+error:function(xhr,status,error){console.log(error);}});}
+,10000);});
+
+$(document).ready(function(){
+setInterval(function(){
+$.ajax({url:"{{url_for('last_notification')}}",
+success:function(data){
+               var n=data.result;
+              $('#new_comment').text(n);
+              $('#new_comment').css('visibility',n?'visible':'hidden');
+},
+error:function(xhr,status,error){console.log(error);}});}
+,10000);});
+
+$(document).ready(function(){
+setInterval(function(){
+$.ajax({url:"{{url_for('last_request')}}",
+success:function(data){
+               var n=data.result;
+              $('#new_request').text(n);
+              $('#new_request').css('visibility',n?'visible':'hidden');
+},
+error:function(xhr,status,error){console.log(error);}});}
+,10000);});
+function ajax_like(post_id){
+ 
+ $.ajax({url:"{{url_for('likes')}}",data:{postid:post_id},
+success:function(data){
+  if (data.result=="success"){
+    $(".like"+post_id).text("Unlike");
+    $(".like"+post_id).attr("onclick","ajax_unlike('"+post_id+"')");
+    $("#likes"+post_id).text(data.likes);
+    
+}
+}
+});
+}
+function ajax_unlike(post_id){
+ $.ajax({url:"{{url_for('unlikes')}}",data:{postid:post_id},
+success:function(data){
+  if (data.result=="success"){
+    $(".like"+post_id).text("Like");
+    $(".like"+post_id).attr("onclick","ajax_like('"+post_id+"')");
+    $("#likes"+post_id).text(data.likes);
+    
+}
+}
+});
+}
+</script>
+
+{% endblock %}
+</body>
+</html>

@@ -1,0 +1,134 @@
+{% extends 'home.html' %}
+{% block body %}
+<div class="container">
+<div class="row">
+
+
+<div class="col-6" style="height:500px;">
+ {% if post[5] %}
+  {% if isimage(post[5]) %}
+   <img class="border img-fluid w-100 h-100" src="{{url_for('static',filename='uploads/'+post[5])}}">
+  {% else %}
+   <video  width="100%" height="100%"  controls>
+    <source src="{{url_for('static',filename='uploads/'+post[5])}}" type="video/mp4"/>
+   </video>
+  {% endif %} 
+ {% endif %}
+</div>
+<div class="col-6" style="padding-bottom:120px;">
+ {% set postor=commentor(post[4])%}
+  {% if postor[6] %}
+    {% set fm=postor[6] %}
+  {% else %}
+    {% set fm="default.jpeg" %}
+  {% endif %}
+  <div class="row">
+   <div class="col-2">
+    <img class="rounded-circle border img-fluid w-100 h-100"   src="{{url_for('static',filename='uploads/'+fm)}}">
+   </div>
+   
+  {% if post[1] %}
+   <div class="col">
+    <p class="text-dark">{{post[1]}}</p>
+   </div>
+  {% endif %}
+  </div>
+  <br>
+  <hr>
+ {% if comments %}
+  {% for comment in comments %}
+   {% set author=commentor(comment[1]) %}
+     <div class="row">
+      <div class="col-2">
+       <img class="border img-fluid w-100 h-100"   src="{{url_for('static',filename='uploads/'+author[6])}}">
+      </div>
+      <div class="col">
+       <div class="d-inline-flex p-2">
+        {{author[3]}}
+       </div>
+       <div class="d-inline-flex p-2">
+        {{tim(comment[4])}}
+       </div>
+       <br>
+       <div class="justify-content-end bg-light">
+        {% autoescape false %}
+        <p class="text-muted">{{comment[3]|replace("/n","<br/>")}}</p>
+        {% endautoescape %}
+       </div>
+      </div>
+     </div>
+     <div class="container">
+      <div class="row">
+       <div class="col-2 p-2">
+        {% if comment[1]==user_id %}
+         <a href="{{url_for('deletecomment',comment_id=comment[0])}}"><span><p>delete</p></span></a>
+        {% endif %}
+       </div>
+        {% set liked=likedchecker(user_id,comment[0]) %}
+       <div class="col-2">
+        {% if liked %}
+         <button class="likecomment{{comment[0]}} btn btn-link" onclick="comment_unlike('{{comment[0]}}')">Unlike</button>
+        {% else %}
+         <button class="likecomment{{comment[0]}} btn btn-link" onclick="comment_like('{{comment[0]}}')">Like</button>
+        {% endif %}
+       </div>
+       
+       <div class="col-2 p-2">
+        {% if comment[6] is not none %}
+         <p>Likes:<span id="likescomment{{comment[0]}}">{{comment[6]}}</span></p>
+        {% else %}
+         <p>Likes:<span id="likescomment{{comment[0]}}"></span></p>
+        {% endif %}
+       </div>
+       
+      </div>
+     </div>
+     <br>
+  {% endfor %}
+ {% endif %}
+</div>
+
+</div>
+</div>
+
+<div class="container fixed-bottom mt-2">
+ <div class="col-6 float-right ">
+  <form  method="post">
+   <div class="form-group row">
+    <textarea class="form-control" id="textarea1" rows="1" name="tx" ></textarea>
+    <button  type="submit" class="btn btn-primary">Comment</button>
+   </div>
+  </form>
+ </div>
+</div>
+
+{% endblock %}
+{% block script %}
+<script>
+function comment_like(comment_id){
+ 
+ $.ajax({url:"{{url_for('likescomment')}}",data:{commentid:comment_id},
+success:function(data){
+  if (data.result=="success"){
+    $(".likecomment"+comment_id).text("Unlike");
+    $(".likecomment"+comment_id).attr("onclick","comment_unlike('"+comment_id+"')");
+    $("#likescomment"+comment_id).text(data.likes);
+    
+}
+}
+});
+}
+function comment_unlike(comment_id){
+ $.ajax({url:"{{url_for('unlikescomment')}}",data:{commentid:comment_id},
+success:function(data){
+  if (data.result=="success"){
+    $(".likecomment"+comment_id).text("Like");
+    $(".likecomment"+comment_id).attr("onclick","comment_like('"+comment_id+"')");
+    $("#likescomment"+comment_id).text(data.likes);
+    
+}
+}
+});
+}
+</script>
+{% endblock %}

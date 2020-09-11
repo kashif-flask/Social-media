@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="col justify-content-start">
+<a href="{{url_for('home')}}">
+<img src="{{url_for('static',filename="images/arrow.png")}}" width="60px" height="30px">
+</a>
+</div>
+<h1>Friend Request</h1>
+<br>
+
+<div class="container">
+ {% if val %}
+  {% for v in val %}
+   <div class="row p-2">
+    {% set user=pro(v[0])%}
+    {% if user[6] %}
+    {% set fm=user[6]%}
+    {% else %}
+    {% set fm='default.jpeg' %}
+    {% endif %}
+    <div class="container p-4">
+     <div class="row">
+      <div class="d-inline-flex p-2">
+       <img class="rounded-circle border img-fluid" style="width:200px;height:180px;" src="{{url_for('static',filename='uploads/'+fm)}}">
+      </div>
+      <div class="d-inline-flex p-2">
+       <a href="{{url_for('profile',username=user[1])}}"><h3>{{user[3]}}</h3></a>
+      </div>
+      <br>
+      <div class="d-inline-flex p-2">
+       <a href="{{url_for('accept',follower_id=user[0],followed_id=followed_id)}}">Accept</a>
+      </div>
+     </div>
+    </div>
+   </div>
+  {% endfor %}
+ {% endif %}
+<div>
+ <hr>
+ <hr>
+ <h1>Follow back</h1>
+ <br>
+<div class="container">
+ {% if val1 %}
+  {% for v in val1 %}
+   
+   {% if followback(v[0]) %}
+    <div class="row p-2">
+    {% set user=pro(v[0])%}
+    {% if user[6] %}
+    {% set fm=user[6]%}
+    {% else %}
+    {% set fm='default.jpeg' %}
+    {% endif %}
+    <div class="container p-4">
+     <div class="row">
+      <div class="d-inline-flex p-2">
+       <img class="rounded-circle border img-fluid" style="width:200px;height:180px;" src="{{url_for('static',filename='uploads/'+fm)}}">
+      </div>
+      <div class="d-inline-flex p-2">
+       <a href="{{url_for('profile',username=user[1])}}"><h3>{{user[3]}}</h3></a>
+      </div>
+      <br>
+      <div class="d-inline-flex p-2">
+       <a href="{{url_for('follow',username=user[1])}}">Follow Back</a>
+      </div>
+     </div>
+    </div>
+   </div>
+   {% endif %}
+  {% endfor %}
+ {% endif %}
+</div>
+{% endblock %}
