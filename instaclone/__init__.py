@@ -12,7 +12,7 @@ from sendmail import *
 import sqlite3
 conn=sqlite3.connect("insta.db",check_same_thread=False,detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
 c=conn.cursor()
-lock=Lock()
+
 UPLOAD_FOLDER='static/uploads/'
 ALLOWED_EXTENSIONS={'png','jpg','jpeg','mpg','mpeg','mp4','mov'}
 app=Flask(__name__)
@@ -1027,4 +1027,4 @@ def change(token):
 def page_not_found(e):
     return render_template("error.html",username=session["current_user"])
 if __name__=="__main__":
-    app.run(debug=True)
+    app.run()
