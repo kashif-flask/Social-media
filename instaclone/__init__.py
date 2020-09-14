@@ -1026,5 +1026,6 @@ def change(token):
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("error.html",username=session["current_user"])
-if __name__=="__main__":
-    app.run()
+
+def getApp():
+    return app
