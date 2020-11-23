@@ -17,7 +17,7 @@ UPLOAD_FOLDER='static/uploads/'
 ALLOWED_EXTENSIONS={'png','jpg','jpeg','mpg','mpeg','mp4','mov'}
 app=Flask(__name__)
 app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
-app.config['SECRET_KEY']="hello"
+app.config['SECRET_KEY']=os.environ['Secret_key']
 
 app.permanent_session_lifetime=timedelta(days=1)
 
