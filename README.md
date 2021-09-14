@@ -34,7 +34,7 @@ It's a social media platform like facebook and instagram that's why name FaceGra
 2. When you are chatting with someone, others person's messages won't be updated in real time you have to come out of chat box to see other person's message , maybe some changes can be done here to make real time update
 3. Again, i am not a web designer , so design formats are not so good ,maybe a little more designing make it near perfect.
 4. When someone comment on a post you can't reply to that reply ,you have to make a new comment, maybe allow user to make reply on a reply.
-
+5. I hosted on pythonanywhere but it provide very less space that's why I have removed video update option when hosting online, you can keep this property and host it on some other cloud server. 
 ## Dependencies(main)
 1. Flask
 2. sqlite
