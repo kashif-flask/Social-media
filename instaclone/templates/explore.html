@@ -3,7 +3,7 @@
 <form method="post">
  {{form.hidden_tag()}}
   <div class="form-group">
-   <div class="col-6">
+   <div class="col-xs-6">
     {% if form.search.errors %}
      {{form.search(class="form-control form-control-lg is-invalid")}}
      <div class="invalid-feedback">
@@ -30,10 +30,10 @@
     {% else %}
      {% set fm='default.jpeg'%}
     {% endif %}
-    <div class="col-2">
-     <img class="rounded-circle border img-fluid" style="height:200px;height:180px;"  src="{{url_for('static',filename='uploads/'+fm)}}">
+    <div class="col-xs-2">
+     <img class="rounded-circle border img-fluid" style="height:90px;height:90px;"  src="{{url_for('static',filename='uploads/'+fm)}}">
     </div>
-    <div class="d-inline-flex p-2">
+    <div class="d-inline-flex p-xs-2">
      <a href="{{url_for('profile',username=user[1])}}"><h3>{{user[3]}}</h3></a>
     </div>
    </div>
@@ -43,17 +43,19 @@
  {% endfor %}
 {% else %}
 <div class="container">
- <div id ="scroller" class="mb-3">
+ <div id ="scroller" class="mb-xs-3">
   <template id="post_template">
-   <div class="col-2">
-    <img class="rounded-circle border img-fluid" style="height:200px;height:180px;"  src="" id="img">
+   <div class="col-xs-2">
+    <img class="rounded-circle border img-fluid" style="height:90px;height:90px;"  src="" id="img">
    </div>
-   <div class="d-inline-flex p-2">
+   <div class="d-inline-flex p-xs-2">
     <a href="" id="url"><h3 id="name"></h3></a>
    </div>
+   <hr>
   </template>
+
  </div>
- <div class="d-flex justify-content-center mb-3" id="sentinel">
+ <div class="d-flex justify-content-xs-center mb-xs-3" id="sentinel">
   <div class="spinner-border" role="status"></div>
  </div>
 </div>
@@ -68,7 +70,7 @@ var counter=0;
 function loaditems(){
  fetch('/load?c='+counter).then(response=>
      response.json()).then(data=>{
-      if(!data.length){ 
+      if(!data.length){
        sentinel.innerHTML="No more users";
 }
        for(var i=0;i<data.length;i++){
@@ -81,8 +83,8 @@ function loaditems(){
          template_clone.querySelector('#name').innerHTML=data[i][3];
          scroller.appendChild(template_clone);
          counter+=1;
-        
-}  
+
+}
 })
 }
 var intersectionObserver=new IntersectionObserver(entries=>{
