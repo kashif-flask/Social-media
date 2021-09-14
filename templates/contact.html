@@ -1,0 +1,50 @@
+{% extends "message.html" %}
+{% block body %}
+<div class="container">
+<div class="row">
+<div class="col justify-content-start">
+<a href="{{url_for('home')}}">
+<img src="{{url_for('static',filename="images/arrow.png")}}" width="60px" height="30px">
+</a>
+</div>
+
+<div class="col justify-content-center">
+<h1>Messages</h1>
+</div>
+</div>
+<br>
+
+{% if val %}
+ {% for id in val %}
+
+  {% set use=pro(id[0]) %}
+   {% if use %}
+  {% if use[6] %}
+   {% set fmm=use[6] %}
+  {% else %}
+   {% set fmm="default.jpeg" %}
+  {% endif %}
+   <a href="{{url_for('message',from_id=current_id,to_id=id[0],flag=0)}}">
+   <div class="row justify-content-xs-start py-2">
+    <div class="col-xs-2" >
+     <img class="rounded-circle border img-fluid"  style="width:90px;height:90px;" src="{{url_for('static',filename='uploads/'+fmm)}}">
+    </div>
+
+    <div class="d-inline-sm-flex">
+     <h2>{{use[3]}}</h2>
+    </div>
+     {% set local_new_messages=last_read_msg(id[0]) %}
+     <span id="local_message_count" class="badge text-danger" style="visibility:{% if local_new_messages %}visible
+                                                         {% else %}hidden {% endif %};">
+      {{local_new_messages}}
+      {{"unread"}}
+     </span>
+   </div>
+
+   {% endif %}
+    </a>
+   <br>
+ {% endfor %}
+{% endif %}
+</div>
+{% endblock %}

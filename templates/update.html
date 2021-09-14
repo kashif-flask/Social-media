@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+
+<link rel="stylesheet" href="/static/bootstrap.min.css"/>
+
+<title>INSTA CLONE</title>
+</head>
+
+<body>
+<br>
+{% if name!="" %}
+{% set na=name %}
+{% else %}
+{% set na="enter name" %}
+{% endif %}
+
+{% if bio!="" %}
+{% set bi=bio %}
+{% else %}
+{% set bi="" %}
+{% endif %}
+
+{% if phone!="" %}
+{% set ph=phone %}
+{% else %}
+{% set ph="" %}
+{% endif %}
+
+{% if gender!="" %}
+{% set gn=gender %}
+{% else %}
+{% set gn="" %}
+{% endif %}
+<div class="row">
+<div class="col-xs-4">
+<a href="{{url_for('profile',username=username,filename=filename)}}">
+<img src="{{url_for('static',filename="images/arrow.png")}}" width="60px" height="60px">
+</a>
+</div>
+
+<div class="col">
+<h1>EDIT PROFILE</h1>
+</div>
+</div>
+<p id="demo"></p>
+{% with messages=get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category,msg in messages%}
+<div class="alery alert-{{category}}">
+{{msg}}
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+<hr>
+<div class="container">
+<div class="row">
+<div class="col-xs-3 col-md-3">
+<img id="profileimage" class="rounded-circle border img-fluid" style="width:180px;height:200px;" src="{{url_for('static',filename='uploads/'+filename)}}">
+</div>
+
+<div class="col align-self-start">
+<h2>{{username}}</h2>
+<a class="text-primary" id="profile"><h3>Change Profile Photo</h3></a>
+
+
+</div>
+</div>
+<br>
+<br>
+<div class="container m-2">
+<div class="row">
+
+<form  method="post" action="" enctype="multipart/form-data">
+<div class="form-group">
+<input class="d-none" id="imageupload" type='file' name='file' accept="image/*">
+</div>
+<div class="form-group row">
+<label for="exampleFormControlInput1">Name:</label>
+<div class="col-10">
+<input type="text" class="form-control" id ="exampleFormControlInput1" name="name9" value="{{na}}"/>
+</div>
+</div>
+<br>
+<div  class="form-group row">
+<label for="exampleFormControlInput2">Bio:</label>
+<div class="col-10">
+<textarea class="form-control" id ="exampleFormControlInput2" id="tx" name="tx9" rows="3">{{bi}}</textarea>
+</div>
+</div>
+<br>
+
+<div class="form-group row">
+<label for="exampleFormControlInput3">Phone Number:</label>
+<div class="col-10">
+<input type="tel" class="form-control" pattern="[0-9]{5} [0-9]{5}" placeholder="99999 99999" id ="exampleFormControlInput3" value="{{ph}}" name="pn9"/>
+</div>
+</div>
+<br>
+<div class="form-group row">
+<label for="exampleFormControlInput4">Gender</label>
+<div class="col-10">
+
+<select class="form-control" id="exampleFormControlInput4" name="gn9">
+{% if gn=='Male'%}
+<option selected>Male</option>
+<option>Female</option>
+<option>Transgender</option>
+<option>Prefer not to say</option>
+{% elif gn=='Female'%}
+<option>Male</option>
+<option selected>Female</option>
+<option>Transgender</option>
+<option>Prefer not to say</option>
+{% elif gn=='Transgender'%}
+<option>Male</option>
+<option>Female</option>
+<option selected>Transgender</option>
+<option>Prefer not to say</option>
+{% else %}
+<option>Male</option>
+<option>Female</option>
+<option>Transgender</option>
+<option selected>Prefer not to say</option>
+{% endif %}
+</select>
+
+</div>
+</div>
+
+<input id="submit" type="submit" class="btn btn-primary" style="margin-bottom:30px;" value="Update">
+</form>
+
+</div>
+</div>
+
+
+<script type="text/javascript" src="/static/jquery.min.js"></script>
+<script type="text/javascript" src="/static/bootstrap.bundle.js"></script>
+<script type="text/javascript" src="/static/bootstrap.bundle.min.js"></script>
+
+<script type="text/javascript" src="/static/bootstrap.min.js"></script>
+<script>
+$("#profile").click(function(e)
+{
+    $("#imageupload").click();
+
+}
+);
+function preview(uploader){
+   if (uploader.files && uploader.files[0]){
+        $('#profileimage').attr('src',window.URL.createObjectURL(uploader.files[0]));
+
+
+
+}
+
+}
+function loadpreview(){
+
+    $('#profileimage').attr('src',"/static/images/loading.png")
+}
+$('#imageupload').change(function(){loadpreview();$('#submit').click();preview(this);});
+
+</script>
+</body>
+</html>

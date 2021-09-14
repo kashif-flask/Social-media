@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+
+<link rel="stylesheet" href="/static/bootstrap.min.css"/>
+
+<title>INSTA CLONE</title>
+</head>
+
+<body>
+<div>
+{% with messages=get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category,msg in messages %}
+<div class="alert alert-{{category}}">
+{{msg}}
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+</div>
+<br>
+{% block body %}
+
+
+{% endblock%}
+<script type="text/javascript" src="/static/jquery.min.js"></script>
+<script type="text/javascript" src="/static/bootstrap.bundle.js"></script>
+<script type="text/javascript" src="/static/bootstrap.bundle.min.js"></script>
+
+<script type="text/javascript" src="/static/bootstrap.min.js"></script>
+{% block script %}
+{% endblock %}
+</body>
+</html>

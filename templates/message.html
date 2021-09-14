@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<div class="row">
+<div class="col">
+
+<a href="{{url_for('contact')}}">
+<img src="{{url_for('static',filename="images/arrow.png")}}" width="60px" height="30px">
+</a>
+
+</div>
+
+<div class="col justify-content-xs-center pr-6">
+<h1>{{name}}</h1>
+</div>
+</div>
+<hr>
+
+<div class="container" style="padding-bottom:120px;" id="container">
+    <div class="row justify-content-xs-start py-2" id="row">
+     <div class="col-xs-1">
+      <img class="rounded-circle border  img-fluid" id="image"  style="width:60px;height:60px;display:none;" src="">
+     </div>
+     <div class="col-5">
+      <p id ="name" style="display:none;"><p>
+      <br>
+      <div class="bg-secondary">
+       <p class="text-white" id="msg" style="display:none;"></p>
+      </div>
+     </div>
+    </div>
+ {% if val %}
+  {% for msg in val %}
+   {% if msg[1]==current_id %}
+    {% set user=pro(msg[1]) %}
+     {% if user[6] %}
+      {% set fmm=user[6] %}
+     {% else %}
+    {% set fmm="default.jpeg" %}
+   {% endif %}
+   <div class="row justify-content-end py-xs-2">
+    <div class="col-xs-2" >
+     <img class="rounded-circle border img-fluid"  style="width:60px;height:60px;" src="{{url_for('static',filename='uploads/'+fmm)}}">
+    </div>
+    <div class="col-xs-6">
+     {{user[3]}}
+     <br>
+     <div class="bg-light">
+      <p class="text-muted">{{msg[3]}}</p>
+     </div>
+     <div>
+       {{time(msg[4])}}
+      </div>
+     <a href="{{url_for('deletemessage',from_id=from_id,to_id=to_id,msg_id=msg[0])}}">delete</a>
+    </div>
+   </div>
+  {% else %}
+   {% set user=pro(msg[1]) %}
+    {% if user[6] %}
+     {% set fmm=user[6] %}
+    {% else %}
+     {% set fmm="default.jpeg" %}
+    {% endif %}
+    <div class="row justify-content-start py-xs-2">
+     <div class="col-xs-2">
+      <img class="rounded-circle border  img-fluid"  style="width:60px;height:60px;" src="{{url_for('static',filename='uploads/'+fmm)}}">
+     </div>
+     <div class="col-xs-6">
+      {{user[3]}}
+      <br>
+      <div class="bg-secondary">
+       <p class="text-white">{{msg[3]}}</p>
+      </div>
+      <div>
+       {{time(msg[4])}}
+      </div>
+     </div>
+    </div>
+   {% endif %}
+   <br>
+  {% endfor %}
+ {% endif %}
+</div>
+
+
+<div class="container fixed-bottom p-xs-2">
+  <form  method="post" action="{{url_for('message',from_id=from_id,to_id=to_id)}}">
+   <div class="form-group row">
+    <textarea class="form-control" rows="1" name="ms" id="tx" ></textarea>
+    <button id="sub" type="submit" class="btn btn-primary">Send</button>
+   </div>
+  </form>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+$(window).scroll(function() {
+  sessionStorage.scrollTop = $(this).scrollTop();
+});
+
+$(document).ready(function() {
+  if (sessionStorage.scrollTop != "undefined") {
+    $(window).scrollTop(sessionStorage.scrollTop);
+  }
+});
+</script>
+
+<script>
+
+</script>
+{% endblock %}
