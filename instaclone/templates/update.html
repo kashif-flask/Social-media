@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    
+
 
 <link rel="stylesheet" href="/static/bootstrap.min.css"/>
-<link rel="stylesheet" href="/static/bootstrap-theme.css"/>
+
 <title>INSTA CLONE</title>
 </head>
 
@@ -22,7 +22,7 @@
 {% if bio!="" %}
 {% set bi=bio %}
 {% else %}
-{% set bi="enter bio" %}
+{% set bi="" %}
 {% endif %}
 
 {% if phone!="" %}
@@ -37,9 +37,9 @@
 {% set gn="" %}
 {% endif %}
 <div class="row">
-<div class="col-4">
+<div class="col-xs-4">
 <a href="{{url_for('profile',username=username,filename=filename)}}">
-<img src="{{url_for('static',filename="images/arrow.png")}}" width="60px" height="30px">
+<img src="{{url_for('static',filename="images/arrow.png")}}" width="60px" height="60px">
 </a>
 </div>
 
@@ -60,7 +60,7 @@
 <hr>
 <div class="container">
 <div class="row">
-<div class="col-2">
+<div class="col-xs-3 col-md-3">
 <img id="profileimage" class="rounded-circle border img-fluid" style="width:180px;height:200px;" src="{{url_for('static',filename='uploads/'+filename)}}">
 </div>
 
@@ -73,11 +73,12 @@
 </div>
 <br>
 <br>
+<div class="container m-2">
 <div class="row">
 
 <form  method="post" action="" enctype="multipart/form-data">
 <div class="form-group">
-<input class="d-none" id="imageupload" type='file' name='file' capture/>
+<input class="d-none" id="imageupload" type='file' name='file' accept="image/*">
 </div>
 <div class="form-group row">
 <label for="exampleFormControlInput1">Name:</label>
@@ -148,19 +149,23 @@
 $("#profile").click(function(e)
 {
     $("#imageupload").click();
-    
+
 }
 );
 function preview(uploader){
    if (uploader.files && uploader.files[0]){
         $('#profileimage').attr('src',window.URL.createObjectURL(uploader.files[0]));
-        
-       
-      
+
+
+
 }
 
 }
-$('#imageupload').change(function(){preview(this);$('#submit').click();});
+function loadpreview(){
+
+    $('#profileimage').attr('src',"/static/images/loading.png")
+}
+$('#imageupload').change(function(){loadpreview();$('#submit').click();preview(this);});
 
 </script>
 </body>
