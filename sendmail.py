@@ -6,8 +6,8 @@ from flask_mail import Mail,Message
 app.config['MAIL_SERVER']='smtp.googlemail.com'
 app.config['MAIL_PORT']=587
 app.config['MAIL_USE_TLS']=True
-app.config['MAIL_USERNAME']="facegramclone@gmail.com"
-app.config['MAIL_PASSWORD']="xutmowmmbcmwtztl"
+app.config['MAIL_USERNAME']=os.getenv("USER_EMAIL")  #generate using your google account whose email id you will use to send links to other user
+app.config['MAIL_PASSWORD']=os.getenv("USER_PASSWORD") #generate same as above
 mail=Mail(app)
 def get_token(user):
     s=Serializer(app.config["SECRET_KEY"],240)
