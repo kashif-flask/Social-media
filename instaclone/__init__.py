@@ -6,20 +6,33 @@ from datetime import timedelta,datetime
 import os
 import timeago
 import time
+import sys
 from werkzeug.utils import secure_filename
-from Forms import LoginForm,RegistrationForm,Verify,Change,Search
-from sendmail import *
+from instaclone.Forms import LoginForm,RegistrationForm,Verify,Change,Search
+from instaclone.sendmail import *
 import sqlite3
-conn=sqlite3.connect("insta.db",check_same_thread=False,detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+from pytz import timezone
+from tzlocal import get_localzone
+
+path="/home/Kashifakhtar/Social-media/instaclone/insta.db"
+conn=sqlite3.connect(path,check_same_thread=False,detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+
+
+
+
+#conn=mysql.connector.connect(host=os.getenv("host"),database=os.getenv("database"),user=os.getenv("user"),password=os.getenv("password"))
 c=conn.cursor()
 
-UPLOAD_FOLDER='static/uploads/'
+UPLOAD_FOLDER='/home/Kashifakhtar/Social-media/instaclone/static/uploads/'
 ALLOWED_EXTENSIONS={'png','jpg','jpeg','mpg','mpeg','mp4','mov'}
 app=Flask(__name__)
+app.config["DEBUG"]=True
+
 app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
-app.config['SECRET_KEY']=os.environ['Secret_key']
+app.config['SECRET_KEY']=os.getenv("SECRET_KEY")
 
 app.permanent_session_lifetime=timedelta(days=1)
+
 
 def sdate(d):
     v=d.strftime("%d/%m/%Y %H:%M:%S")
@@ -92,28 +105,28 @@ def last_read():
         except:
             pass
     else:
-       return redirect(url_for('login')) 
+       return redirect(url_for('login'))
 def last_like(post_id):
     try:
         c.execute("""SELECT * FROM liked WHERE timestamp> (SELECT last_visit FROM post WHERE user_id=? AND id=?) AND likedpost_id=? AND liker_id!=?""",
                   (session['id'],post_id,post_id,session['id']))
         val=c.fetchall()
         if val:
-            
+
             return val
         else:
             return None
     except:
         pass
-    
+
 def last_comment(post_id):
     try:
-    
+
         c.execute("""SELECT * FROM comment WHERE timestamp> (SELECT last_visit FROM post WHERE user_id=? AND id=?) AND post_id=?
                            AND user_id!=?""",(session['id'],post_id,post_id,session['id']))
         val=c.fetchall()
         if val:
-            
+
             return val
         else:
             return None
@@ -128,7 +141,7 @@ def last_likecomment(post_id):
                     AND timestamp>(?) AND liker_id!=?""",(session['id'],post_id,x,session['id']))
         val=c.fetchall()
         if val:
-            
+
             return val
         else:
             return None
@@ -148,7 +161,7 @@ def last_request():
         except:
             pass
     else:
-       return redirect(url_for('login')) 
+       return redirect(url_for('login'))
 @app.route("/accept/")
 def accept():
     if 'logged_in' in session:
@@ -171,7 +184,7 @@ def followback(follower_id):
         return True
 @app.route("/friendrequest/")
 def friendrequest():
-    
+
     if 'logged_in' in session:
         c.execute("""UPDATE user SET last_request_seen=? WHERE id=?""",(datetime.now(),session['id']))
         conn.commit()
@@ -180,11 +193,11 @@ def friendrequest():
         c.execute("""SELECT follower_id FROM follower WHERE accept=1  AND followed_id=? ORDER BY timestamp DESC""",(session['id'],))
         val1=c.fetchall()
         return render_template("friendrequest.html",val=val,val1=val1,pro=pro,followback=followback,followed_id=session['id'])
-        
+
 
     else:
         return redirect(url_for('login'))
-    
+
 @app.route("/last_notification/")
 def last_notification():
     if "logged_in" in session:
@@ -222,7 +235,7 @@ def last_notification():
 @app.route("/notification/")
 def notification():
     if 'logged_in' in session:
-        
+
         def commentor(user_id):
             try:
                 c.execute("""SELECT * FROM user WHERE id=?""",(user_id,))
@@ -262,16 +275,16 @@ def contact():
         try:
             c.execute("""UPDATE user SET last_msg_read_time=? WHERE id=?""",(datetime.now(),session['id']))
             conn.commit()
-        
+
             c.execute("""SELECT to_id  FROM message WHERE from_id=? UNION SELECT from_id FROM message WHERE to_id=?""",(session['id'],session['id']))
             val=c.fetchall()
-        
+
             return render_template('contact.html',val=val,pro=pro,current_id=session['id'],last_read_msg=last_read_msg)
         except:
             pass
     else:
         return redirect(url_for('login'))
-    
+
 @app.route("/backgroundmessage/",methods=["POST"])
 def backgroundmessage():
     try:
@@ -295,37 +308,38 @@ def backgroundmessage():
         pass
 @app.route("/message/",methods=["GET","POST"])
 def message():
-    
-    
+
+
     if "logged_in" in session:
         from_id=request.args.get('from_id')
         to_id=request.args.get('to_id')
-        
+
         c.execute("""SELECT * FROM user WHERE id=?""",(to_id,))
         v=c.fetchone()
         c.execute("""UPDATE follower SET timestamp=? WHERE follower_id=? AND followed_id=? AND accept=1""",(datetime.now(),session['id'],to_id))
-        
+
         conn.commit()
 
         if request.method=="POST":
             msg=request.form["ms"]
             if msg!="":
-            
-                
-                c.execute("""INSERT INTO message(from_id,to_id,body,timestamp) VALUES(?,?,?,?)""",(from_id,to_id,msg,datetime.now()))
-                
+                now_utc=datetime.now(timezone('UTC'))
+                now_local=now_utc.astimezone(get_localzone())
+
+                c.execute("""INSERT INTO message(from_id,to_id,body,timestamp) VALUES(?,?,?,?)""",(from_id,to_id,msg,now_local))
+
                 conn.commit()
-            
-                
-        
+
+
+
         c.execute("""SELECT * FROM message WHERE from_id=? AND to_id=? UNION SELECT * FROM message WHERE from_id=? AND to_id=?
                   ORDER BY timestamp DESC""",(from_id,to_id,to_id,from_id))
         val=c.fetchall()
-        
+
         return render_template("message.html",from_id=from_id,to_id=to_id,name=v[3],val=val,current_id=session['id'],pro=pro,time=sdate)
     else:
         return redirect(url_for('login.html'))
-    
+
 @app.route("/comment/",methods=["GET","POST"])
 def comment():
     if 'logged_in' in session:
@@ -351,7 +365,7 @@ def comment():
                 except:
                     pass
 
-            
+
             post_id=request.args.get('post_id')
             x=datetime.now()-dt.timedelta(minutes=1)
             c.execute("""UPDATE post SET last_visit=? WHERE user_id=? AND id=?""",(x,session['id'],post_id))
@@ -359,7 +373,7 @@ def comment():
             c.execute("""SELECT * FROM post WHERE id=?""",(post_id,))
             post=c.fetchone()
             if request.method=="POST":
-                
+
                 comment=request.form["tx"]
                 if comment!="":
                     c.execute("""INSERT INTO comment(user_id,post_id,body,timestamp) VALUES(?,?,?,?)""",(session['id'],post_id,comment,datetime.now()))
@@ -440,7 +454,7 @@ def unlikescomment():
             c.execute("""DELETE FROM liked_comment WHERE liker_id=? AND likedcomment_id=?""",(session['id'],commentid))
             conn.commit()
             c.execute("""SELECT * FROM comment WHERE id=(?)""",(commentid,))
-            
+
             val=c.fetchone()
             if val[6] is None:
                 nl=0
@@ -471,7 +485,7 @@ def unlikes():
             c.execute("""DELETE FROM liked WHERE liker_id=? AND likedpost_id=?""",(session['id'],postid))
             conn.commit()
             c.execute("""SELECT likes FROM post WHERE id=(?)""",(postid,))
-            
+
             val=c.fetchone()
             if val[0] is None:
                 nl=0
@@ -524,7 +538,7 @@ def follower(username):
             pass
     else:
         return redirect(url_for('login'))
-    
+
 @app.route("/deletemessage/")
 def deletemessage():
     if 'logged_in' in session:
@@ -535,7 +549,7 @@ def deletemessage():
             try:
                 c.execute("""DELETE FROM message WHERE id=?""",(msg_id,))
                 conn.commit()
-                
+
             except:
                 pass
             return redirect(url_for('.message',from_id=from_id,to_id=to_id))
@@ -550,42 +564,40 @@ def deletecomment():
             comment_id=request.args.get('comment_id')
             c.execute("""SELECT * FROM comment WHERE id=?""",(comment_id,))
             val=c.fetchone()
-            
-        
-            
+
+
+
             c.execute("""DELETE FROM comment WHERE id=?""",(comment_id,))
             conn.commit()
             c.execute("""DELETE FROM liked_comment WHERE likedcomment_id=?""",(comment_id,))
             conn.commit()
-            
-            
+
+
             return redirect(url_for('.comment',post_id=val[2]))
         except:
             pass
     else:
         return redirect(url_for('login'))
-    
-@app.route("/delete/")
-def delete():
+
+@app.route("/deletepost/")
+def deletepost():
     if 'logged_in' in session:
         try:
-            postid=request.args.get('postid')
-            c.execute("""SELECT path FROM post WHERE id=?""",(postid,))
-            val1=c.fetchone()
-            
+            postid=request.args.get('post_id')
             try:
-                os.remove(f"C:\\Users\\Kashik\\Desktop\\instaclone\\static\\uploads\\{val1[0]}")
+                c.execute("""SELECT path FROM post WHERE id=?""",(postid,))
+                val1=c.fetchone()
                 c.execute("""DELETE FROM post WHERE id=?""",(postid,))
                 conn.commit()
                 c.execute("""DELETE FROM liked WHERE likedpost_id=?""",(postid,))
                 conn.commit()
                 c.execute("""DELETE FROM comment WHERE post_id=?""",(postid,))
                 conn.commit()
+                c.execute("""SELECT * FROM user WHERE id=?""",(session["id"],))
+                val=c.fetchone()
+                os.remove(os.path.join(UPLOAD_FOLDER,val1[0]))
             except:
                 pass
-            
-            c.execute("""SELECT * FROM user WHERE id=?""",(session["id"],))
-            val=c.fetchone()
             if val[10]:
                 npost=val[10]-1
             else:
@@ -593,7 +605,6 @@ def delete():
             c.execute("""UPDATE user SET nposts=? WHERE id=?""",(npost,session["id"]))
             conn.commit()
             flash("Deleted post",'info')
-            
             return redirect(url_for('home'))
         except:
             pass
@@ -602,7 +613,7 @@ def delete():
 @app.route("/follow/")
 def follow():
     if 'logged_in' in session:
-        
+
         followed=request.args.get('username')
         follower=session["current_user"]
         c.execute("""SELECT id FROM user WHERE username=?""",(follower,))
@@ -613,10 +624,10 @@ def follow():
         conn.commit()
         flash(f"Friend request sent to {followedid[3]}",'info')
         return redirect(url_for('home'))
-        
+
     else:
         return redirect(url_for('login'))
-    
+
 @app.route("/unfollow/")
 def unfollow():
     if 'logged_in' in session:
@@ -637,6 +648,8 @@ def unfollow():
         redirect(url_for('login'))
 @app.route('/load')
 def load():
+    c.execute("""SELECT COUNT(*) FROM user WHERE confirmed=1""")
+    val1=c.fetchone()
     print('yo')
     time.sleep(0.2)
     if request.args:
@@ -644,16 +657,16 @@ def load():
         counter=int(request.args.get("c"))
         if counter==0:
             print(f"returning 0 to {5}")
-            c.execute("""SELECT * FROM user LIMIT 5""")
+            c.execute("""SELECT * FROM user WHERE confirmed=1 LIMIT 5""")
             val=c.fetchall()
             print(val)
             res=make_response(jsonify(val),200)
-        elif counter==10:
+        elif counter==val1[0]:
             print('no more post')
             res=make_response(jsonify({}),200)
         else:
             print(f"returning {counter} to {counter+5}")
-            c.execute("""SELECT * FROM user LIMIT ?,5""",(counter,))
+            c.execute("""SELECT * FROM user WHERE confirmed=1 LIMIT ?,5""",(counter,))
             val=c.fetchall()
             res=make_response(jsonify(val),200)
     return res
@@ -663,7 +676,7 @@ def explore():
         form=Search()
         if form.validate_on_submit():
             search=form.search.data
-            c.execute("""SELECT * FROM user WHERE username LIKE ('%' || ? || '%') OR name LIKE ('%' || ? || '%')""",(search,search))
+            c.execute("""SELECT * FROM user WHERE (username LIKE ('%' || ? || '%') OR name LIKE ('%' || ? || '%')) AND confirmed=1""",(search,search))
             val=c.fetchall()
             return render_template("explore.html",users=val,form=form,flag=1,username=session["current_user"])
         return render_template("explore.html",form=form,flag=0,username=session["current_user"])
@@ -683,7 +696,7 @@ def update(username):
                 val=c.fetchone()
                 try:
                     file=request.files['file']
-                    
+
                     if file and allowed_file(file.filename):
                         filename=secure_filename(file.filename)
                         file.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
@@ -692,7 +705,7 @@ def update(username):
                         flag=True
                 except:
                     pass
-                
+
 
                 if not flag:
                     if n:
@@ -703,17 +716,17 @@ def update(username):
                         flash("Fill Name")
             c.execute("""SELECT * FROM user WHERE id=?""",(session['id'],))
             val=c.fetchone()
-                
+
             if val[7] is None:
                 bio=""
             else:
                 bio=val[7]
-                
+
             if val[8] is None:
                 phone=""
             else:
                 phone=val[8]
-                
+
             if val[9] is None:
                 gender=""
             else:
@@ -747,10 +760,10 @@ def profile(username):
             followedid=c.fetchone()
             c.execute("""SELECT * FROM post WHERE user_id=?""",(followedid[0],))
             posts=c.fetchall()
-        
+
             isfollowings=isfollowing(followerid[0],followedid[0])
             path='default.jpeg'
-            
+
             c.execute("""SELECT count(followed_id) FROM follower WHERE follower_id=? AND accept=1""",(followedid[0],))
             v=c.fetchone()
             if v:
@@ -767,17 +780,17 @@ def profile(username):
                 filename=path
             else:
                 filename=followedid[6]
-                
+
             if followedid[7] is None:
                 bio=""
             else:
                 bio=followedid[7]
-                
+
             if followedid[8] is None:
                 phone=""
             else:
                 phone=followedid[8]
-                
+
             if followedid[9] is None:
                 gender=""
             else:
@@ -786,7 +799,7 @@ def profile(username):
                 npost=""
             else:
                 npost=followedid[10]
-            
+
             return render_template("profile.html",posts=posts,npost=npost,bio=bio,phone=phone,gender=gender,follower=follower,following=following,filename=filename,
                                    username=username,nameus=followedid[3],namecr=followerid[3],current_user=current_user,isfollowings=isfollowings,current_id=session['id'],
                                    user_id=followedid[0],friend=friend,isimage=isimage,a1="",a2="active",a3="",a4="")
@@ -798,7 +811,7 @@ def home():
     if "logged_in" in session:
         try:
             flag=False
-            
+
 
             def likedchecker(id1,id2):
                 c.execute("""SELECT * FROM liked WHERE liker_id=? AND likedpost_id=?""",(id1,id2))
@@ -811,12 +824,13 @@ def home():
             val=c.fetchone()
             try:
                 file=request.files['file']
-            
+
                 if file and allowed_file(file.filename):
+
                     filename=secure_filename(file.filename)
                     file.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
                     flag=True
-                
+
             except:
                 pass
             if request.method=="POST":
@@ -835,7 +849,7 @@ def home():
                     c.execute("""INSERT INTO post(body,timestamp,user_id,path,last_visit) VALUES (?,?,?,?,?)""",(post,datetime.now(),session["id"],filename,datetime.now()))
                     conn.commit()
                     k=True
-                    
+
                 else:
                     pass
                 if k:
@@ -851,9 +865,9 @@ def home():
                      UNION SELECT * FROM post JOIN (SELECT * FROM user WHERE id=?) s ON post.user_id=s.id ORDER BY timestamp DESC"""
             c.execute(query,(session['id'],session["id"]))
             posts=c.fetchall()
-            
+
             if posts:
-                
+
                 return render_template("home.html",likedchecker=likedchecker,current_userid=session['id'],time=tim,username=val[1],current_user=val[1],name=val[3],
                                        posts=posts,last_comment=last_comment,isimage=isimage,a1="active",a2="",a3="",a4="")
             else:
@@ -862,7 +876,7 @@ def home():
             pass
     else:
         return redirect(url_for('login'))
-    
+
 @app.route("/confirm_email/<token>")
 def confirm_email(token):
     try:
@@ -878,7 +892,7 @@ def confirm_email(token):
         return redirect(url_for('register'))
     c.execute("""SELECT * FROM user WHERE email=?""",(email,))
     val=c.fetchone()
-    if val[-1]:
+    if val[11]:
         flash("Account already verified,Please login",'success')
     else:
         c.execute("""UPDATE user SET confirmed=1 WHERE email=?""",(email,))
@@ -894,7 +908,7 @@ def register():
         password=form.password.data
         confirm_password=form.confirm_password.data
         name=form.name.data
-        
+
         try:
             c.execute("""SELECT * FROM user WHERE username=?""",(username,))
             if c.fetchone() is None:
@@ -906,31 +920,32 @@ def register():
                               (username,email,pa,name,datetime.now(),datetime.now(),datetime.now()))
                     conn.commit()
                 else:
-                    if not val[-1]:
+                    if not val[11]:
                         c.execute("""UPDATE user SET username=?,password=?,name=? WHERE email=?""",(username,pa,name,email))
                         conn.commit()
                     else:
                         flash("Email already exist",'warning')
+                        return redirect(url_for('register'))
                 c.execute("""SELECT * FROM user WHERE email=?""",(email,))
                 val=c.fetchone()
                 send_email1(val)
                 flash("An email has been send to your email,click the link within 4 min to verify your account",'success')
                 return redirect(url_for("login"))
-                
+
             else:
-               flash("username already exist",'warning') 
-        
+               flash("username already exist",'warning')
+
         except Exception as e:
             flash(f"{e}")
-    
+
     return render_template("register.html",form=form)
 @app.route("/",methods=["GET","POST"])
 @app.route("/login/",methods=["GET","POST"])
 def login():
-    
-    
+
+
     if "logged_in" in session:
-        flash("already logged in")
+        flash("already logged in","info")
         return redirect(url_for("home"))
     else:
         form=LoginForm()
@@ -944,8 +959,8 @@ def login():
             if val2 is not None:
                 ap=val2[5]
                 i=val2[0]
-            
-        
+
+
                 if sha256_crypt.verify(password,ap):
                     if val2[-2]:
                         session["logged_in"]=True
@@ -954,17 +969,17 @@ def login():
                         return redirect(url_for("home"))
                     else:
                         flash("You didn't verified your account,Please confirm first by clicking the given link or registering again",'warning')
-                    
-                    
+
+
                 else:
                     flash("wrong password!",'warning')
-            
+
             else:
                 flash("No such username","warning")
-                
-            
-    return render_template("login.html",form=form)    
-    
+
+
+    return render_template("login.html",form=form)
+
 @app.route("/logout/")
 def logout():
     if "logged_in" in session:
@@ -972,16 +987,16 @@ def logout():
         session.pop("logged_in",None)
         session.pop("id",None)
         session.pop("current_user",None)
-         
-    else:
-        flash("you need to login first")
 
-    
-    
+    else:
+        flash("you need to login first","warning")
+
+
+
     session.clear()
     return redirect(url_for('login'))
-        
-    
+
+
 @app.route("/verify/",methods=["GET","POST"])
 def verify():
     if 'logged_in' in session:
@@ -991,13 +1006,13 @@ def verify():
         email=form.email.data
         c.execute("""SELECT * FROM user WHERE email=?""",(email,))
         val=c.fetchone()
-        if val is not None:
+        if val is not None and val[11]:
             send_email(val)
             flash('An email has been send to your email,click the link to reset password','info')
             return redirect(url_for('login'))
         else:
-            flash("No such email","warning")
-        
+            flash("No such email or you haven't confirmed your email, just register again","warning")
+
     return render_template("verify.html",form=form)
 @app.route("/change/<token>",methods=["GET","POST"])
 def change(token):
@@ -1005,27 +1020,25 @@ def change(token):
         return redirect(url_for('home'))
     user=verify_token(token)
     if user is None:
-        flash('Either it is invalid token or your it has expired','warning')
+        flash('Either it is invalid token or  it has been expired','warning')
         return redirect(url_for('verify'))
-    
+
     form=Change()
-    
+
     if form.validate_on_submit():
         pas=form.password.data
         pa=sha256_crypt.encrypt(pas)
         try:
             c.execute("""UPDATE user SET password=? WHERE email=?""",(pa,user[2]))
             conn.commit()
-            flash("password changed successfully","success")
+            flash("password changed successfully",'success')
             return redirect(url_for("login"))
         except:
             pass
-        
-        
+
+
     return render_template("change.html",form=form)
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template("error.html",username=session["current_user"])
+
 
 def getApp():
     return app
