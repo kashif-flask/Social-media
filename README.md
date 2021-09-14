@@ -3,4 +3,6 @@ It's a social media platform like facebook and instagram that's why name FaceGra
 
 ## How to run app
 1. Either fork or download app
+2. Install all dependencies given in requirements.txt file in cmd using  pip install -r requirements.txt
+3. 
 
