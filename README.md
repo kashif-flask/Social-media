@@ -47,12 +47,24 @@ It's a social media platform like facebook and instagram that's why name FaceGra
 ![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/login_page.PNG)
 
 
+
+
+
+
 # Registration page
 ![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/register_page.PNG)
 
 
+
+
+
+
 # Home Page
 ![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/Home_page.PNG)
+
+
+
+
 
 
 
@@ -62,8 +74,18 @@ It's a social media platform like facebook and instagram that's why name FaceGra
 
 
 
+
+
+
+
+
 # Profile Update Page
 ![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/update_profile.PNG)
+
+
+
+
+
 
 
 
@@ -72,8 +94,18 @@ It's a social media platform like facebook and instagram that's why name FaceGra
 
 
 
+
+
+
+
+
 # POSTS
 ![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/posts_img.PNG)
+
+
+
+
+
 
 
 
@@ -83,14 +115,29 @@ It's a social media platform like facebook and instagram that's why name FaceGra
 
 
 
+
+
+
+
+
 # Friend request
 ![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/accept_friend_req.PNG)
+
+
+
+
 
 
 # Message 
 ![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/show_unread_msg.PNG)
 
+
+
 ![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/msg_chat.PNG)
+
+
+
+
 
 
 
