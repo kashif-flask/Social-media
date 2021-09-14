@@ -27,6 +27,7 @@ It's a social media platform like facebook and instagram that's why name FaceGra
 6. If someone send you friend request you will get notification in red symbol and it will be visisble in friend request section.
 7. The most interesting part is that you can see any notifications that you get like if someone message you or send you friend request or liked and commented on your post and comments in the notification section.
 8. Unread messages will also be marked red so that you can get to know if their are any unread messages.
+9. You can also update your password if you forget by clicking on change password button on login page, you have to provide your email and link will be send to yout email id.
 
 ## Future fetaures
 1. Notifications and message notification are kind of interlinked ,means if you click on message section the red symbol on notifcation button will go away and vice versa, maybe do some changes so that clicking on message section doesn't affect notification section red symbol.
@@ -41,5 +42,58 @@ It's a social media platform like facebook and instagram that's why name FaceGra
 4. wtforms
 
 ## What the app looks like
+
+# Login Page
+![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/login_page.PNG)
+
+
+# Registration page
+![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/register_page.PNG)
+
+
+# Home Page
+![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/Home_page.PNG)
+
+
+
+# Profile Page
+![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/Profile_page.PNG)
+
+
+
+
+# Profile Update Page
+![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/update_profile.PNG)
+
+
+
+# Explore Page
+![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/explore.PNG)
+
+
+
+# POSTS
+![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/posts_img.PNG)
+
+
+
+# Comment
+![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/comment_on_post.PNG)
+
+
+
+# Message 
+![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/show_unread_msg.PNG)
+
+![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/msg_chat.PNG)
+
+
+
+
+# Notifications
+![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/msg_notify.PNG)
+
+
+
 
 
