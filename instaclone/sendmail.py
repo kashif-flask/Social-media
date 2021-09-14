@@ -1,13 +1,13 @@
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from __init__ import *
+from instaclone.__init__ import *
 from flask import url_for
 import os
 from flask_mail import Mail,Message
 app.config['MAIL_SERVER']='smtp.googlemail.com'
 app.config['MAIL_PORT']=587
 app.config['MAIL_USE_TLS']=True
-app.config['MAIL_USERNAME']=os.environ.get('myemail')
-app.config['MAIL_PASSWORD']=os.environ.get('mypass') 
+app.config['MAIL_USERNAME']=os.getenv("USER_EMAIL")
+app.config['MAIL_PASSWORD']=os.getenv("USER_PASSWORD")
 mail=Mail(app)
 def get_token(user):
     s=Serializer(app.config["SECRET_KEY"],240)
@@ -31,9 +31,9 @@ def send_email(user):
 If you did not make this request then just ignore.
 '''
     mail.send(msg)
-    
+
 def send_email1(user):
-    
+
     token=get_token(user)
     msg=Message('Verify InstaClone account',sender='instaclone@demo.com',recipients=[user[2]])
     msg.body=f'''To verify your InstaClone account,visit following link:
@@ -42,3 +42,4 @@ def send_email1(user):
 If you did not make this request then just ignore.
 '''
     mail.send(msg)
+
