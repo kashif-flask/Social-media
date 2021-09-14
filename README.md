@@ -82,6 +82,11 @@ It's a social media platform like facebook and instagram that's why name FaceGra
 
 
 
+
+# Friend request
+![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/accept_friend_req.PNG)
+
+
 # Message 
 ![alt text](https://github.com/kashif-flask/Social-media/blob/master/images/show_unread_msg.PNG)
 
